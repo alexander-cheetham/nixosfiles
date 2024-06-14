@@ -80,6 +80,7 @@
   wlroots
   waybar
   rofi-wayland 
+  git
 ];
 virtualisation.vmware.guest.enable = true;
   programs.hyprland = {
