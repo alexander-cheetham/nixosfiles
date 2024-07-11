@@ -1,6 +1,6 @@
-{ config, pkgs, ... }:
-
+{ config, pkgs, inputs, ... }:
 {
+
   # Home Manager needs a bit of information about you and the paths it should
  # manage.
   home.username = "ac";
@@ -8,20 +8,72 @@
  
  
   xdg.configFile."hypr/hyprland.conf".source =  ./nixosfiles/hyprland/hyprland.conf;
-  xdg.configFile."xdg/waybar/config/config.jsonc".source = ./nixosfiles/hyprland/config.jsonc;
-  xdg.configFile."xdg/waybar/config/style.css".source = ./nixosfiles/hyprland/style.css;
-  xdg.configFile."hypr/start.sh".source = ./nixosfiles/hyprland/start.sh;
-  gtk.enable = true;
+  xdg.configFile."hypr/hyprlock.conf".source =  ./nixosfiles/hyprland/hyprlock.conf;
+   # TODO NIXIFY ABOVE
 
-#  gtk.iconTheme = {
-#	name="Whitesur-icon-theme";
-#	package=pkgs.whitesur-icon-theme;
-#	};
+  imports = [
+    ./nixosfiles/hyprland/waybar.nix
+    ./nixosfiles/dunst/dunst-config.nix
+    ./nixosfiles/spicetify/spicetify.nix
 
- # gtk.theme = {
-#	name="whitesur-gtk-theme";
-#	package = pkgs.whitesur-gtk-theme;
-#	};
+  ];
+  
+
+  stylix.targets.waybar.enable = true;
+  programs.alacritty = {
+              enable = true;
+              # use a color scheme from the overlay
+              settings = {};
+            };
+  stylix.targets.gtk.enable = false;
+  stylix.targets.rofi.enable = false;
+  stylix.targets.hyprland.enable = true;
+  # nixpkgs.overlays = [
+
+  # ];
+  # nixpkgs.overlays = [
+  #     (final: prev: {
+  #       whitesur-gtk-theme = prev.whitesur-gtk-theme.overrideAttrs (oldAttrs: rec {
+  #         postInstall = (prev.postInstall) +''
+  #            $out/tweaks.sh -g -c Dark \ 
+  #           -b "/home/ac/nixos-config/nixosfiles/wallpapers/mac-background.jpg" \
+  #           -f monterey \
+  #           & echo HELLLLOOOOO
+  #       '';
+
+  #       });
+  #   }) 
+  #   ];
+
+  gtk = {
+    enable = true;
+    theme = {
+      
+
+      # -g default \
+      #        -t blue \
+      #        -c Dark \ 
+      #       -b "/home/ac/nixos-config/nixosfiles/wallpapers/mac-background.jpg" \
+      # /etc/profiles/per-user/ac/themes
+      name = "Whitesur GTK Dark";
+      package = pkgs.whitesur-gtk-theme.override {
+        colorVariants =  ["Dark"] ;
+        themeVariants = [ "blue"];
+        #nautilusStyle = ["mojave"];
+        altVariants =  ["normal"] ;
+        opacityVariants = ["solid"];
+        };
+
+      
+    };
+
+    iconTheme = {
+      package = pkgs.gnome.adwaita-icon-theme;
+      name = "Adwaita";
+    };
+  };
+
+
 
 
   # This value determines the Home Manager release that your configuration is
@@ -35,23 +87,11 @@
 
   # The home.packages option allows you to install Nix packages into your
   # environment.
-  home.packages = [
-    # # Adds the 'hello' command to your environment. It prints a friendly
-    # # "Hello, world!" when run.
-    # pkgs.hello
-
-    # # It is sometimes useful to fine-tune packages, for example, by applying
-    # # overrides. You can do that directly here, just don't forget the
-    # # parentheses. Maybe you want to install Nerd Fonts with a limited number of
-    # # fonts?
-    # (pkgs.nerdfonts.override { fonts = [ "FantasqueSansMono" ]; })
-
-    # # You can also create simple shell scripts directly inside your
-    # # configuration. For example, this adds a command 'my-hello' to your
-    # # environment:
-    # (pkgs.writeShellScriptBin "my-hello" ''
-    #   echo "Hello, ${config.home.username}!"
-    # '')
+  home.packages = with pkgs; [
+    # spotify
+    unigine-valley
+    _1password-gui
+    firefox
   ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
@@ -87,8 +127,16 @@
   #
   home.sessionVariables = {
     # EDITOR = "emacs";
+      OLLAMA_MAX_LOADED_MODELS = 4;
+      OLLAMA_NUM_PARALLEL = 1;
   };
   
+  programs.fzf = {
+    enable = true;
+    enableZshIntegration = true;
+  };
+
+
   programs.zsh = {
   	enable = true;
   	enableCompletion = true;
@@ -115,10 +163,13 @@
     	ll = "ls -l";
     	update = "sudo nixos-rebuild switch";
   	};
+
+
   	history = {
     	size = 10000;
     	path = "${config.xdg.dataHome}/zsh/history";
  	 };
+
 	oh-my-zsh = {
     		enable = true;
     		plugins = [ "git" "z" ];

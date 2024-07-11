@@ -12,22 +12,28 @@
    	 url = "github:shaunsingh/SFMono-Nerd-Font-Ligaturized";
     	flake = false;
   	};
+    sf-pro-src = {
+   	 url = "github:sahibjotsaggu/San-Francisco-Pro-Fonts";
+    	flake = false;
+  	};
+    spicetify-nix.url = "github:the-argus/spicetify-nix";
   };
+
+  
 
   outputs = { self, nixpkgs, ...}@inputs:
     let 
-	system = "x86_64-linux";
-	pkgs = nixpkgs.legacyPackages.${system};
+	    system = "x86_64-linux";
+	    pkgs = nixpkgs.legacyPackages.${system};
     in
     {
-
+    
     nixosConfigurations.desktop = nixpkgs.lib.nixosSystem {
       specialArgs = {inherit inputs;};
       modules = [
         inputs.stylix.nixosModules.stylix
-        ./nixosfiles/stylix/stylix.nix
         ./configuration.nix
-	 inputs.home-manager.nixosModules.default
+	      inputs.home-manager.nixosModules.default
 	];
     };	
 #end of outputs

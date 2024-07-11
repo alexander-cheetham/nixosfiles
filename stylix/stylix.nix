@@ -1,18 +1,33 @@
 { pkgs, ...}:
 {
   stylix.enable = true;
+  stylix.autoEnable = true;
+  stylix.polarity = "dark";
   
-  stylix.image = pkgs.fetchurl {
-        url="https://raw.githubusercontent.com/NixOS/nixos-artwork/master/wallpapers/nix-wallpaper-dracula.png";
-        sha256 ="sha256-SykeFJXCzkeaxw06np0QkJCK28e0k30PdY8ZDVcQnh4=";
-        };
-  stylix.base16Scheme = "${pkgs.base16-schemes}/share/themes/darkmoss.yaml";
+  stylix.image =  ../wallpapers/mac-background.jpg;
+  stylix.base16Scheme = "${pkgs.base16-schemes}/share/themes/atelier-cave.yaml";
+
+  # Background color: base00
+  #   Alternate background color: base01
+  #   Main color: base05
+  #   Alternate main color: base04
+  #   Red: base08
+  #   Orange: base09
+  #   Yellow: base0A
+  #   Green: base0B
+  #   Cyan: base0C
+  #   Blue: base0D
+  #   Purple: base0E
+  #   Brown: base0F
   # stylix.autoEnable = false;
   stylix.targets.gnome.enable = false;
   
   stylix.cursor.package = pkgs.capitaine-cursors;
   stylix.cursor.name = "capitaine-cursors";
   stylix.cursor.size = 10;
+
+  stylix.opacity.terminal = 0.7;
+  
   
   stylix.fonts = {
 
@@ -24,14 +39,14 @@
      };
   
     serif = {
-      package = pkgs.sf-mono-liga-bin;
-      name = "Liga SFMono Nerd Font";
+      package = pkgs.sf-pro-bin;
+      name = "SF Pro Serif";
 
     };
 
     sansSerif = {
-      package = pkgs.sf-mono-liga-bin;
-      name = "Liga SFMono Nerd Font";
+      package = pkgs.sf-pro-bin;
+      name = "SF Pro Sans";
     };
 
     monospace = {
