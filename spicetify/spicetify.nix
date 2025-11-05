@@ -16,28 +16,28 @@ in
   programs.spicetify =
     {
       enable = true;
-      theme = spicePkgs.themes.catppuccin;
-      colorScheme = "macchiato";
+      # theme = spicePkgs.themes.catppuccin;
+      # colorScheme = "macchiato";
 
       # # color definition for custom color scheme. (rosepine)
-      # customColorScheme = {
-      #   text = "#${config.lib.stylix.colors.base01}";
-      #   subtext = "F0F0F0";
-      #   sidebar-text = "e0def4";
-      #   main = "#${config.lib.stylix.colors.base00}";
-      #   sidebar = "2a2837";
-      #   player = "191724";
-      #   card = "191724";
-      #   shadow = "1f1d2e";
-      #   selected-row = "797979";
-      #   button = "31748f";
-      #   button-active = "31748f";
-      #   button-disabled = "555169";
-      #   tab-active = "ebbcba";
-      #   notification = "1db954";
-      #   notification-error = "eb6f92";
-      #   misc = "6e6a86";
-      # };
+      customColorScheme = {
+        text = "#${config.lib.stylix.colors.base01}";
+        subtext = "F0F0F0";
+        sidebar-text = "e0def4";
+        main = "#${config.lib.stylix.colors.base00}";
+        sidebar = "2a2837";
+        player = "191724";
+        card = "191724";
+        shadow = "1f1d2e";
+        selected-row = "797979";
+        button = "31748f";
+        button-active = "31748f";
+        button-disabled = "555169";
+        tab-active = "ebbcba";
+        notification = "1db954";
+        notification-error = "eb6f92";
+        misc = "6e6a86";
+      };
 
 
       enabledExtensions = with spicePkgs.extensions; [

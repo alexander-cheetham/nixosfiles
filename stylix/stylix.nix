@@ -21,10 +21,12 @@
   #   Brown: base0F
   # stylix.autoEnable = false;
   stylix.targets.gnome.enable = false;
+  stylix.targets.grub.enable = false;
+
   
   stylix.cursor.package = pkgs.capitaine-cursors;
   stylix.cursor.name = "capitaine-cursors";
-  stylix.cursor.size = 10;
+  stylix.cursor.size = 20;
 
   stylix.opacity.terminal = 0.7;
   

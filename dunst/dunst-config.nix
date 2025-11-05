@@ -5,7 +5,7 @@
     enable = true;
     settings = {
       global = {
-        browser = "${config.programs.firefox.package}/bin/firefox -new-tab";
+        browser = "${pkgs.xdg-utils}/bin/xdg-open";
         dmenu = "${pkgs.wofi}/bin/wofi -dmenu";
         follow = "mouse";
         format = "<b>%s</b>\\n%b";

@@ -9,7 +9,7 @@ in {
     enable = true;
     settings = {
       default_session = {
-        command = "${tuigreet} --time --remember --cmd hyprland  --asterisks -g 'Access is restricted to authorised personnel only.'";
+        command = "${tuigreet} --time --remember --cmd Hyprland  --asterisks -g 'Access is restricted to authorised personnel only.'";
         user = "greeter";
       };
     };

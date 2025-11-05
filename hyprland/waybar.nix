@@ -23,7 +23,6 @@ with lib;
           "custom/startmenu"
           "hyprland/window"
           "pulseaudio"
-          "cpu"
           "memory"
           "disk"
           "idle_inhibitor"
@@ -32,8 +31,10 @@ with lib;
           "custom/hyprbindings"
           "custom/notification"
           "custom/exit"
-          "temperature"
+          "custom/gpu-usage"
           "custom/gputemperature"
+          "cpu"
+          "temperature"
           "network"
           "tray"
           "clock"
@@ -66,14 +67,14 @@ with lib;
         "temperature" = {
           hwmon-path = "/sys/class/hwmon/hwmon0/temp1_input";
           critical-threshold = 80;
-          format = "{icon} <span font-weight='bold'>CPU:</span> {temperatureC}°C";
+          format = "{icon} <span font-weight='bold'></span> {temperatureC}°C |";
           format-critical = "󰸁 {temperatureC}°C";
           format-icons = ["󱃃" "󰔏" "󱃂"];
         };
         "custom/gputemperature" = {
           exec = "nvidia-smi --query-gpu temperature.gpu --format=csv,noheader,nounits";
           interval = 2;
-          format = "<span font-weight='bold'>GPU: </span>{}°C";
+          format = "<span font-weight='bold'> </span>{}°C | ";
         };
         "memory" = {
           interval = 5;
@@ -82,7 +83,7 @@ with lib;
         };
         "cpu" = {
           interval = 5;
-          format = " {usage:2}%";
+          format = " CPU: {usage:2}%";
           tooltip = true;
         };
         "disk" = {
@@ -165,6 +166,12 @@ with lib;
           on-click = "sleep 0.1 && task-waybar";
           escape = true;
         };
+        "custom/gpu-usage" = {
+          exec     = "bash -c 'nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader,nounits'";
+          interval = 5;
+          format   = "<span font-weight='bold'>󰾲 GPU: {}%</span>";  # use the expansion‑card icon
+          tooltip  = false;
+        };
       }
     ];
     style =  concatStrings [
@@ -221,7 +228,7 @@ with lib;
         #network.ethernet {
            color: #${config.lib.stylix.colors.base07};
         }
-        #window,#temperature,#disk, #network , #custom-gputemperature, #pulseaudio, #cpu, #memory, #idle_inhibitor {
+        #window,#temperature,#disk, #network , #custom-gputemperature,#custom-gpu-usage, #pulseaudio, #cpu, #memory, #idle_inhibitor {
           font-weight: normal;
           margin: 4px 0px;
           margin-left: 7px;
