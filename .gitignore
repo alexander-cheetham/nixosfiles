@@ -1,0 +1,30 @@
+# NixOS Configuration .gitignore
+
+# Nix build outputs
+result
+result-*
+
+# Secrets (should not be committed)
+.webui_secret_key
+*.secret
+*.key
+secrets/
+
+# Editor backups and swap files
+*.save
+*.swp
+*.swo
+*~
+\#*\#
+.#*
+
+# macOS
+.DS_Store
+
+# IDE directories
+.idea/
+*.iml
+
+# Test/debug files
+test.txt
+debug.log

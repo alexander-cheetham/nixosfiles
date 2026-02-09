@@ -1,41 +1,156 @@
-# Edit this configuration file to define what should be installed on
-# your system.  Help is available in the configuration.nix(5) man page
-# and in the NixOS manual (accessible by running ‘nixos-help’).
+# ~/nixos-config/configuration.nix
+#
+# Main NixOS system configuration
+# Imported by flake.nix for the 'desktop' host
+#
+# Sections:
+# - Boot/Hardware
+# - Networking
+# - Internationalization
+# - Services
+# - Packages
+# - Desktop Environment (Hyprland)
+# - Audio (PipeWire)
+# - Fonts
+# - Portals
 
-{ config, pkgs, inputs, lib,  ... }:
-{
-  imports =
-    [ 
-      ./hardware-configuration.nix
-      ./nixosfiles/stylix/stylix.nix
-      ./nixosfiles/nvidia/nvidia.nix
-      ./nixosfiles/tuigreet/greetd.nix
-      ./nixosfiles/streaming/streaming.nix
-      # ./nixosfiles/podman/podman.nix
-      inputs.home-manager.nixosModules.default
+{ config, pkgs, inputs, lib, ... }:
+let
+  # R packages built from source
+  mvbutils = pkgs.rPackages.buildRPackage {
+    name = "mvbutils";
+    src = pkgs.fetchFromGitHub {
+      owner = "markbravington";
+      repo = "mvbutils";
+      rev = "3d278380cf29f47988aa73317107d3ec8c7daa0e";
+      hash = "sha256-Pdibb68zfEppSt9BeBNhg8N1GV6eb5uj7cKg+XwDC3E=";
+    };
+  };
+
+  debug = pkgs.rPackages.buildRPackage {
+    name = "debug";
+    src = pkgs.fetchFromGitHub {
+      owner = "markbravington";
+      repo = "debug";
+      rev = "1ae9442fd112fc515bcad3d9d5cab575b60fdc32";
+      hash = "sha256-U8bYRG9/vaXjMx686xTs38hfMdJDgPetmUqnSWTRSgo=";
+    };
+    propagatedBuildInputs = [ mvbutils ];
+    nativeBuildInputs = [ mvbutils ];
+  };
+
+  R-with-my-packages = pkgs.rstudioWrapper.override {
+    packages = with pkgs.rPackages; [ ggplot2 mvbutils debug ];
+  };
+
+  prismlauncher-wrapped = pkgs.prismlauncher.override {
+    additionalPrograms = [ pkgs.ffmpeg ];
+    jdks = [
+      pkgs.graalvmPackages.graalvm-ce
+      pkgs.zulu8
+      pkgs.zulu17
+      pkgs.zulu
     ];
+  };
 
-  # Bootloader.
+  # Package categories for organization
+  developmentPackages = [
+    pkgs.vscode
+    pkgs.ripgrep
+    pkgs.meson
+    pkgs.gnupg
+    pkgs.libsecret
+    pkgs.conda
+  ];
+
+  waylandPackages = [
+    pkgs.wayland-protocols
+    pkgs.egl-wayland
+    pkgs.wayland-utils
+    pkgs.wl-clipboard
+    pkgs.wlroots
+    pkgs.hyprlock
+    pkgs.swww
+    pkgs.hyprshot
+  ];
+
+  desktopPackages = [
+    pkgs.alacritty
+    pkgs.wofi
+    pkgs.pavucontrol
+    pkgs.nemo
+    pkgs.dunst
+    pkgs.libnotify
+    pkgs.wlogout
+    pkgs.networkmanagerapplet
+  ];
+
+  nvidiaPackages = [
+    pkgs.cudaPackages.cudatoolkit
+    pkgs.libva-utils
+    pkgs.vdpauinfo
+    pkgs.zenith-nvidia
+    pkgs.mesa-demos
+  ];
+
+  multimediaPackages = [
+    pkgs.spotify
+    pkgs.moonlight-qt
+    pkgs.whatsapp-electron
+  ];
+
+  utilityPackages = [
+    pkgs.wget
+    pkgs.toybox
+    pkgs.lshw
+    pkgs.zip
+    pkgs.unzip
+    pkgs.xorg.libXtst
+  ];
+
+  gtkPackages = [
+    pkgs.gtk2
+    pkgs.gtk3
+    pkgs.gtk4
+    pkgs.libdbusmenu-gtk3
+    pkgs.libayatana-appindicator
+  ];
+
+in
+{
+  imports = [
+    ./hardware-configuration.nix
+    ./stylix/stylix.nix
+    ./nvidia/nvidia.nix
+    ./tuigreet/greetd.nix
+    ./streaming/streaming.nix
+    # Note: home-manager module is imported via flake.nix
+  ];
+
+  # ============================================================================
+  # BOOT CONFIGURATION
+  # ============================================================================
+
   boot.loader.systemd-boot.enable = false;
   boot.loader.efi.canTouchEfiVariables = true;
+  boot.loader.efi.efiSysMountPoint = "/boot";
   boot.kernelModules = [ "uinput" ];
+
   boot.loader.grub = {
     enable = true;
-    efiSupport = true; 
-    # Optional but recommended: match your screen; Graphite ships 1080p/2k/4k variants.
-    # e.g. 1920x1080 for typical laptops/monitors:
+    efiSupport = true;
     gfxmodeEfi = "2560x1440";
-    device = "nodev"; 
+    device = "nodev";
     theme = pkgs.stdenvNoCC.mkDerivation {
       pname = "graphite-grub-theme";
       version = "2k-dark";
       src = pkgs.fetchFromGitHub {
         owner = "vinceliuice";
-        repo  = "Graphite-gtk-theme";
-        rev   = "main";  # pin a commit if you want reproducibility
-        hash  = "sha256-FDuChavpTyNJ0ElajiSX7eKCW06Gj+JXOAUOJGyUvUM=";
+        repo = "Graphite-gtk-theme";
+        rev = "main";
+        hash = "sha256-62SOQb3sQCYN1XU6a48RM18EcTUBEh2x0u+S6z8xEfo=";
       };
-      nativeBuildInputs = [ pkgs.librsvg ];  # rsvg-convert
+      nativeBuildInputs = [ pkgs.librsvg ];
       nixosSvg = pkgs.fetchurl {
         url = "https://brand.nixos.org/logos/nixos-logomark-default-flat-recommended.svg";
         sha256 = "sha256-hVId330cHyKdPpVcGG783Z+uC5WMCNp03KIT9htFuuI=";
@@ -43,57 +158,54 @@
       installPhase = ''
         set -e
         mkdir -p "$out"
-
-        # common files (fonts + shared pngs)
         cp -a other/grub2/common/*.pf2 "$out"/
         cp -a other/grub2/common/*.png "$out"/ 2>/dev/null || true
-
-        # screen-specific config -> theme.txt
         cp -a "other/grub2/config/theme-2k.txt" "$out/theme.txt"
-
-        # Remove any desktop-image line, then ensure a quoted desktop-color is present
         sed -i '/^desktop-image:/d' "$out/theme.txt"
         if grep -q '^desktop-color:' "$out/theme.txt"; then
           sed -i 's|^desktop-color:.*|desktop-color: "#000000"|' "$out/theme.txt"
         else
           printf '\ndesktop-color: "#000000"\n' >> "$out/theme.txt"
         fi
-
-        # icons & UI assets
         cp -a "other/grub2/assets/logos/2k" "$out/icons"
         cp -a "other/grub2/assets/assets/2k/"* "$out"/
-
-        # Convert SVG -> PNG for GRUB (icon)
         mkdir -p "$out/icons"
         rsvg-convert -w 48 -h 48 "$nixosSvg" > "$out/icons/nixos.png"
       '';
     };
   };
-  boot.loader.efi.efiSysMountPoint = "/boot";
 
+  # ============================================================================
+  # NIX SETTINGS
+  # ============================================================================
 
-  # enable flakes
-  nix.settings.experimental-features = ["nix-command" "flakes"];
-
-  # Enable networking
-  networking.hostName = "ac"; # Define your hostname.
-  networking.networkmanager.enable = true;
-  networking.interfaces.enp5s0.wakeOnLan.enable = true;
-  # Set your time zone.
-  time.timeZone = "Europe/London";
-
-  nix.settings = {
-    substituters = [
-      "https://cuda-maintainers.cachix.org"
-    ];
-    extra-trusted-public-keys = [
-      "cuda-maintainers.cachix.org-1:0dq3bujKpuEPMCX6U4WylrUDZ9JyUG0VpVZa7CNfq5E="
-    ];
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.substituters = [ "https://cuda-maintainers.cachix.org" ];
+  nix.settings.extra-trusted-public-keys = [
+    "cuda-maintainers.cachix.org-1:0dq3bujKpuEPMCX6U4WylrUDZ9JyUG0VpVZa7CNfq5E="
+  ];
+  nix.optimise.automatic = true;
+  nix.optimise.dates = [ "03:45" ];
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 14d";
   };
 
-  # Select internationalisation properties.
-  i18n.defaultLocale = "en_GB.UTF-8";
+  # ============================================================================
+  # NETWORKING
+  # ============================================================================
 
+  networking.hostName = "ac";
+  networking.networkmanager.enable = true;
+  networking.interfaces.enp5s0.wakeOnLan.enable = true;
+
+  # ============================================================================
+  # INTERNATIONALIZATION
+  # ============================================================================
+
+  time.timeZone = "Europe/London";
+  i18n.defaultLocale = "en_GB.UTF-8";
   i18n.extraLocaleSettings = {
     LC_ADDRESS = "en_GB.UTF-8";
     LC_IDENTIFICATION = "en_GB.UTF-8";
@@ -105,227 +217,111 @@
     LC_TELEPHONE = "en_GB.UTF-8";
     LC_TIME = "en_GB.UTF-8";
   };
+  console.keyMap = "uk";
 
-  # Configure keymap in X11
+  # ============================================================================
+  # SERVICES
+  # ============================================================================
+
   services.xserver = {
-    enable=true;
+    enable = true;
     xkb.layout = "gb";
     xkb.variant = "";
   };
 
   services.ratbagd.enable = true;
   services.blueman.enable = true;
-
   services.tailscale.enable = true;
-#  services.vscode-server.enable = true;
-  
+  services.gvfs.enable = true;
+  services.udisks2.enable = true;
+  services.dbus.enable = true;
+
   services.ollama = {
     enable = true;
-    acceleration = "cuda";
+    package = pkgs.ollama-cuda;
   };
-
-# services.open-webui = {
-#  package = pkgs.open-webui; # pkgs must be from stable, for example nixos-24.11
-#  enable = true;
-#  environment = {
-#    ANONYMIZED_TELEMETRY = "False";
-#    DO_NOT_TRACK = "True";
-#    SCARF_NO_ANALYTICS = "True";
-#    OLLAMA_API_BASE_URL = "http://127.0.0.1:11434/api";
-#    OLLAMA_BASE_URL = "http://127.0.0.1:11434";
-#  };
-#};
-  #disable auto start
+  # Disable ollama auto-start
   systemd.services.ollama.wantedBy = lib.mkForce [ ];
 
+  # ============================================================================
+  # USERS
+  # ============================================================================
 
-  # Configure console keymap
-  console.keyMap = "uk";
-
-  # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.ac = {
     isNormalUser = true;
-    description = "ac"; 
+    description = "ac";
     extraGroups = [ "networkmanager" "wheel" "input" ];
-    packages = with pkgs; [];
+    packages = [ ];
   };
+  users.defaultUserShell = pkgs.zsh;
 
-  # Allow unfree packages
-  # nixpkgs.config.allowUnfree = true;
-  # nixpkgs.config.cudaSupport=true;
+  # ============================================================================
+  # PACKAGES
+  # ============================================================================
 
+  environment.systemPackages =
+    developmentPackages ++
+    waylandPackages ++
+    desktopPackages ++
+    nvidiaPackages ++
+    multimediaPackages ++
+    utilityPackages ++
+    gtkPackages ++
+    [
+      R-with-my-packages
+      prismlauncher-wrapped
+      pkgs.antigravity-fhs
+    ];
 
-  environment.systemPackages = with pkgs;
-  let
-  mvbutils = pkgs.rPackages.buildRPackage {
-    name = "mvbutils";
-    src = fetchFromGitHub {
-      owner = "markbravington";
-      repo = "mvbutils";
-      rev = "3d278380cf29f47988aa73317107d3ec8c7daa0e";
-      hash = "sha256-Pdibb68zfEppSt9BeBNhg8N1GV6eb5uj7cKg+XwDC3E=";
-    };
-  };
-  
-  debug = pkgs.rPackages.buildRPackage {
-    name = "debug";
-    src = fetchFromGitHub {
-      owner = "markbravington";
-      repo = "debug";
-      rev = "1ae9442fd112fc515bcad3d9d5cab575b60fdc32";
-      hash = "sha256-U8bYRG9/vaXjMx686xTs38hfMdJDgPetmUqnSWTRSgo=";
-      
-    };
-    propagatedBuildInputs = [ mvbutils];
-     nativeBuildInputs = [ mvbutils ];
-  };
-    R-with-my-packages = rstudioWrapper.override{ packages = with rPackages; [ ggplot2 mvbutils debug  ]; };
-  in 
-  [
-    
-    R-with-my-packages
-    wget
-    hyprlock
-    swww  
-    cudaPackages.cudatoolkit
-    #utils 
-    meson
-    wayland-protocols
-    egl-wayland
-    wayland-utils
-    wl-clipboard
-    wlroots
-    #nvidia related stuff
-    libva-utils
-    vdpauinfo
-    
-    gnupg
-    libsecret
+  # ============================================================================
+  # SECURITY & POLKIT
+  # ============================================================================
 
-    #gtks
-    gtk2
-    gtk3
-    gtk4
+  security.polkit.enable = true;
+  security.rtkit.enable = true;
 
-    vscode
-    #screen shareeride
-
-    # pipewire
-    #wireplumber
-
-    # notification daemon
-    dunst
-    libnotify
-
-    #screenshot
-    hyprshot
-
-    nemo
-    
-    # networking
-    networkmanagerapplet # GUI for networkmanager
-    wofi
-    pavucontrol
-    toybox
-    lshw 
-    zip
-    unzip
-    spotify
-    alacritty
-    zenith-nvidia
-    moonlight-qt
-    xorg.libXtst
-    glxinfo 
-
-    conda
-    whatsapp-electron
-
-    ripgrep
-
-];
-security.polkit.enable = true;
-
-services.gvfs.enable = true;
-services.udisks2.enable = true;
-
-systemd = {
-  user.services.polkit-kde-authentication-agent-1 = {
+  systemd.user.services.polkit-kde-authentication-agent-1 = {
     description = "polkit-kde-authentication-agent-1";
     wantedBy = [ "graphical-session.target" ];
     wants = [ "graphical-session.target" ];
     after = [ "graphical-session.target" ];
     serviceConfig = {
-        Type = "simple";
-        ExecStart = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1";
-        Restart = "on-failure";
-        RestartSec = 1;
-        TimeoutStopSec = 10;
-      };
+      Type = "simple";
+      ExecStart = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1";
+      Restart = "on-failure";
+      RestartSec = 1;
+      TimeoutStopSec = 10;
+    };
   };
-};
 
-nix.optimise.automatic = true;
-nix.optimise.dates = [ "03:45" ];
+  # ============================================================================
+  # SHELL & PROGRAMS
+  # ============================================================================
 
-#services.getty.autologinUser = "ac";
+  programs.zsh.enable = true;
+  programs.nix-ld.enable = true;
 
-nix.gc = {
-  automatic = true;
-  dates = "weekly";
-  options = "--delete-older-than 14d";
-};
-
-programs.zsh.enable = true;
-users.defaultUserShell = pkgs.zsh;
-
-programs.hyprland = {
-	enable = true;
-  xwayland.enable = true;
-  withUWSM = true;
-};
-
-nixpkgs.overlays = [
-	(self: super: {
-	waybar = super.waybar.overrideAttrs (oldAttrs: {
-	mesonFlags = oldAttrs.mesonFlags ++ ["-Dexperimental=true"];
-	});
-	})
-	(final: prev: {
-  sf-mono-liga-bin = prev.stdenvNoCC.mkDerivation rec {
-    pname = "sf-mono-liga-bin";
-    version = "dev";
-    src = inputs.sf-mono-liga-src;
-    dontConfigure = true;
-    installPhase = '' mkdir -p $out/share/fonts/opentype
-		   cp -R $src/*.otf $out/share/fonts/opentype/
-	 '';
+  programs.hyprland = {
+    enable = true;
+    xwayland.enable = true;
+    withUWSM = true;
   };
-}) 
-(final: prev: {
-  sf-pro-bin = prev.stdenvNoCC.mkDerivation rec {
-    pname = "sf-pro-bin";
-    version = "dev";
-    src = inputs.sf-pro-src;
-    dontConfigure = true;
-    installPhase = '' mkdir -p $out/share/fonts/opentype
-		   cp -R $src/*.otf $out/share/fonts/opentype/
-	 '';
+
+  # ============================================================================
+  # HOME MANAGER
+  # ============================================================================
+
+  home-manager = {
+    extraSpecialArgs = { inherit inputs; };
+    users."ac" = import ./home.nix;
+    useGlobalPkgs = true;
+    useUserPackages = true;
   };
-}) 
-];
 
-home-manager = {
-	extraSpecialArgs = {inherit inputs;};
-	users = {
-		"ac" = import ./home.nix;
-	};
-	
-        useGlobalPkgs = true;
-        useUserPackages = true;
-};
+  # ============================================================================
+  # AUDIO (PipeWire)
+  # ============================================================================
 
-
-  security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
     alsa.enable = true;
@@ -333,44 +329,60 @@ home-manager = {
     pulse.enable = true;
     wireplumber.enable = true;
     audio.enable = true;
-    # systemWide = true;
   };
-fonts.packages =  with pkgs; [
-	sf-mono-liga-bin
-  sf-pro-bin
-  nerd-fonts.fira-code
-];
+
+  # ============================================================================
+  # FONTS
+  # ============================================================================
+
+  fonts.packages = [
+    pkgs.sf-mono-liga-bin
+    pkgs.sf-pro-bin
+    pkgs.nerd-fonts.fira-code
+  ];
+
+  # ============================================================================
+  # ENVIRONMENT & PORTALS
+  # ============================================================================
+
   environment.sessionVariables = {
-	NIXOS_OZONE_WL = "1";
-	KITTY_ENABLE_WAYLAND = "1"; #turn back on for native wayland kitty
-	};
-  services.dbus.enable = true;
-    xdg.portal = {
+    NIXOS_OZONE_WL = "1";
+    KITTY_ENABLE_WAYLAND = "1";
+  };
+
+  xdg.portal = {
     enable = true;
     wlr.enable = true;
     config.common.default = "*";
     extraPortals = [
-		  pkgs.xdg-desktop-portal-gtk
+      pkgs.xdg-desktop-portal-gtk
       pkgs.xdg-desktop-portal-wlr
     ];
   };
 
-	hardware.graphics= {
-		enable=true;
-		enable32Bit = true;
-    extraPackages = with pkgs; [
-    nvidia-vaapi-driver
-    libvdpau-va-gl
-    vaapiVdpau
-  ];
-		};
-  
-	
+  # ============================================================================
+  # GRAPHICS
+  # ============================================================================
+
+  hardware.graphics = {
+    enable = true;
+    enable32Bit = true;
+    extraPackages = [
+      pkgs.nvidia-vaapi-driver
+      pkgs.libvdpau-va-gl
+      pkgs.libva-vdpau-driver
+    ];
+  };
+
+  # ============================================================================
+  # QT
+  # ============================================================================
 
   qt.enable = true;
-  #qt.platformTheme="gtk2";
-  #qt.style = "gtk2";
 
-  system.stateVersion = "24.05"; # Did you read the comment?
+  # ============================================================================
+  # STATE VERSION
+  # ============================================================================
 
+  system.stateVersion = "24.05";
 }
