@@ -55,65 +55,65 @@ let
 
   # Package categories for organization
   developmentPackages = [
-    pkgs.vscode
-    pkgs.ripgrep
-    pkgs.meson
-    pkgs.gnupg
-    pkgs.libsecret
-    pkgs.conda
+    pkgs.vscode               # Visual Studio Code - extensible code editor
+    pkgs.ripgrep              # Fast regex search tool (rg), used by many editors
+    pkgs.meson                # Build system for C/C++ projects
+    pkgs.gnupg                # GNU Privacy Guard - encryption and signing
+    pkgs.libsecret            # Library for storing secrets (passwords, keys)
+    pkgs.conda                # Python package and environment manager
   ];
 
   waylandPackages = [
-    pkgs.wayland-protocols
-    pkgs.egl-wayland
-    pkgs.wayland-utils
-    pkgs.wl-clipboard
-    pkgs.wlroots
-    pkgs.hyprlock
-    pkgs.swww
-    pkgs.hyprshot
+    pkgs.wayland-protocols    # Wayland protocol extensions
+    pkgs.egl-wayland          # EGL External Platform for Wayland
+    pkgs.wayland-utils        # Wayland debugging utilities (wayland-info)
+    pkgs.wl-clipboard         # Command-line clipboard for Wayland (wl-copy, wl-paste)
+    pkgs.wlroots              # Modular Wayland compositor library
+    pkgs.hyprlock             # Screen locker for Hyprland
+    pkgs.swww                 # Wallpaper daemon for Wayland with fancy transitions
+    pkgs.hyprshot             # Screenshot utility for Hyprland
   ];
 
   desktopPackages = [
-    pkgs.alacritty
-    pkgs.wofi
-    pkgs.pavucontrol
-    pkgs.nemo
-    pkgs.dunst
-    pkgs.libnotify
-    pkgs.wlogout
-    pkgs.networkmanagerapplet
+    pkgs.alacritty            # GPU-accelerated terminal emulator
+    pkgs.wofi                 # Application launcher for Wayland (rofi alternative)
+    pkgs.pavucontrol          # PulseAudio/PipeWire volume control GUI
+    pkgs.nemo                 # File manager (from Cinnamon desktop)
+    pkgs.dunst                # Lightweight notification daemon
+    pkgs.libnotify            # Desktop notification library (notify-send)
+    pkgs.wlogout              # Logout menu for Wayland compositors
+    pkgs.networkmanagerapplet # NetworkManager system tray applet
   ];
 
   nvidiaPackages = [
-    pkgs.cudaPackages.cudatoolkit
-    pkgs.libva-utils
-    pkgs.vdpauinfo
-    pkgs.zenith-nvidia
-    pkgs.mesa-demos
+    pkgs.cudaPackages.cudatoolkit # NVIDIA CUDA toolkit for GPU computing
+    pkgs.libva-utils          # VA-API tools for testing hardware video acceleration
+    pkgs.vdpauinfo            # VDPAU info utility for video decode testing
+    pkgs.zenith-nvidia        # Terminal system monitor (htop-like) with NVIDIA GPU support
+    pkgs.mesa-demos           # OpenGL test programs (glxinfo, glxgears)
   ];
 
   multimediaPackages = [
-    pkgs.spotify
-    pkgs.moonlight-qt
-    pkgs.whatsapp-electron
+    pkgs.spotify              # Spotify music streaming client
+    pkgs.moonlight-qt         # Game streaming client for NVIDIA GameStream/Sunshine
+    pkgs.whatsapp-electron    # Electron wrapper for WhatsApp Web
   ];
 
   utilityPackages = [
-    pkgs.wget
-    pkgs.toybox
-    pkgs.lshw
-    pkgs.zip
-    pkgs.unzip
-    pkgs.xorg.libXtst
+    pkgs.wget                 # Command-line file downloader
+    pkgs.toybox               # Lightweight Unix command-line utilities
+    pkgs.lshw                 # Hardware information tool
+    pkgs.zip                  # ZIP compression utility
+    pkgs.unzip                # ZIP extraction utility
+    pkgs.xorg.libXtst         # X11 testing library (needed by some apps)
   ];
 
   gtkPackages = [
-    pkgs.gtk2
-    pkgs.gtk3
-    pkgs.gtk4
-    pkgs.libdbusmenu-gtk3
-    pkgs.libayatana-appindicator
+    pkgs.gtk2                 # GTK+ 2 toolkit (legacy apps)
+    pkgs.gtk3                 # GTK+ 3 toolkit (most current GTK apps)
+    pkgs.gtk4                 # GTK 4 toolkit (newer apps)
+    pkgs.libdbusmenu-gtk3     # GTK3 D-Bus menu library (system tray support)
+    pkgs.libayatana-appindicator # Application indicator library (tray icons)
   ];
 
 in

@@ -197,34 +197,57 @@
   # ============================================================================
 
   home.packages = [
-    pkgs._1password-gui
-    pkgs.libreoffice-qt
-    pkgs.file-roller
-    pkgs.pinta
-    pkgs.fontpreview
-    pkgs.sunshine
-    pkgs.cava
-    pkgs.cmatrix
-    pkgs.gemini-cli
-    pkgs.onnxruntime
-    pkgs.clapper
-    pkgs.nurl
-    pkgs.kdePackages.okular
-    pkgs.discord
-    pkgs.texlive.combined.scheme-medium
-    pkgs.graphviz
-    pkgs.tmux
-    pkgs.warp-terminal
-    pkgs.piper
-    pkgs.codex
-    pkgs.awscli2
-    pkgs.node2nix
-    pkgs.gh
-    pkgs.mongodb-compass
-    pkgs.wireguard-tools
-    pkgs.gparted
-    pkgs.chromium
-    pkgs.antigravity-fhs
+    # Security & Productivity
+    pkgs._1password-gui       # Password manager with secure vault
+    pkgs.libreoffice-qt       # Office suite (Qt variant for better Wayland support)
+    pkgs.file-roller          # Archive manager GUI (zip, tar, etc.)
+
+    # Graphics & Media
+    pkgs.pinta                # Simple image editor (Paint.NET alternative)
+    pkgs.fontpreview          # Preview fonts in a GUI
+    pkgs.clapper              # Modern GTK4 video player
+    pkgs.cava                 # Console audio visualizer
+    pkgs.cmatrix              # Terminal "Matrix" falling code animation
+
+    # AI & Development Tools
+    pkgs.gemini-cli           # Google Gemini AI command-line interface
+    pkgs.codex                # OpenAI Codex CLI - AI coding assistant in terminal
+    pkgs.onnxruntime          # ML inference runtime for ONNX models
+
+    # Nix Development
+    pkgs.nurl                 # Generate Nix fetcher calls from URLs (auto hash prefetch)
+    pkgs.node2nix             # Convert npm packages to Nix expressions
+
+    # Cloud & DevOps
+    pkgs.awscli2              # Amazon Web Services CLI v2
+    pkgs.gh                   # GitHub CLI (gh pr, gh issue, etc.)
+    pkgs.wireguard-tools      # WireGuard VPN utilities (wg, wg-quick)
+
+    # Database
+    pkgs.mongodb-compass      # MongoDB GUI client
+
+    # Document & Visualization
+    pkgs.kdePackages.okular   # PDF and document viewer (KDE)
+    pkgs.texlive.combined.scheme-medium # LaTeX distribution for document typesetting
+    pkgs.graphviz             # Graph visualization (dot, neato)
+
+    # Communication
+    pkgs.discord              # Voice and text chat client
+
+    # Terminal & Shell
+    pkgs.tmux                 # Terminal multiplexer (sessions, splits)
+    pkgs.warp-terminal        # Modern GPU-accelerated terminal with AI features
+
+    # Hardware & System
+    pkgs.piper                # GUI for configuring gaming mice (libratbag)
+    pkgs.gparted              # Partition editor GUI
+    pkgs.sunshine             # Self-hosted game streaming server (Moonlight host)
+
+    # Browsers
+    pkgs.chromium             # Open-source Chromium browser
+
+    # IDE
+    pkgs.antigravity-fhs      # Google Antigravity IDE in FHS environment for NixOS
   ];
 
   # ============================================================================
